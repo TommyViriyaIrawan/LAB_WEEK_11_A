@@ -1,0 +1,42 @@
+LINK REPOSITORY A: https://github.com/TommyViriyaIrawan/LAB_WEEK_11_A 
+LINK REPOSITORY B: https://github.com/TommyViriyaIrawan/LAB_WEEK_11_B
+
+ASSIGNMENT ANSWERS – LAB_WEEK_11
+
+1. Code that handles storing the picture based on the given URI
+
+takePictureLauncher =
+    registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        providerFileManager.insertImageToStore(photoInfo)
+    }
+
+photoInfo = providerFileManager.generatePhotoUri(System.currentTimeMillis())
+takePictureLauncher.launch(photoInfo!!.uri)
+
+
+2. Explanation of FileInfo attributes
+
+uri:
+- The URI refers to the temporary FileProvider URI where the camera will store the captured image/video.
+- This URI is passed into the camera app so Android knows exactly where to write the file.
+
+relativePath:
+- Indicates the directory where the file will be stored inside external storage (MediaStore).
+- Example: Environment.DIRECTORY_PICTURES → "Pictures/"
+- On Android 10+, MediaStore uses this folder to decide where the final file will appear (e.g., Gallery → Pictures).
+
+
+3. BONUS – Chronological order from taking a picture to being stored in MediaStore
+
+1. User taps the “Photo” button.
+2. App calls generatePhotoUri(), which:
+   - Creates FileInfo (URI + file name + path + MIME).
+   - Provides a FileProvider URI for the camera.
+3. App launches the camera using takePictureLauncher.launch(uri).
+4. Camera app saves the raw image into the file represented by the URI.
+5. takePictureLauncher callback triggers insertImageToStore(photoInfo).
+6. ProviderFileManager copies the captured file into MediaStore using:
+   - contentResolver.insert()
+   - InputStream → OutputStream copy
+7. MediaStore registers the new file.
+8. Image becomes visible in Gallery / Photos app.
